@@ -9,6 +9,7 @@ const https = require("node:https");
 
 class Const {
   static HOME = process.env.HOME;
+  static PATH_ROOT = __dirname;
 
   static PATH_CERT = `${this.HOME}/.cert/`;
 
@@ -26,8 +27,8 @@ class App {
     this._port_http = 3030;
     this._port_https = 3031;
 
-    this._path_attachment = path.join(__dirname, "attachment");
-    this._path_public = path.join(__dirname, "public");
+    this._path_attachment = path.join(Const.PATH_ROOT, "attachment");
+    this._path_public = path.join(Const.PATH_ROOT, "public");
 
     const domain = `shengdichen.xyz`;
     this._path_cert = `${Const.PATH_CERT}/${domain}`;
@@ -63,6 +64,7 @@ class App {
     );
 
     this._app.use(express.static(this._path_public));
+    this._app.use(express.static(Const.PATH_ROOT));
   }
 
   _route() {
