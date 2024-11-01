@@ -60,8 +60,6 @@ class App {
       next(); // hand-off to next callback
     });
 
-    this._app.use(express.static(Const.PATH_SRC)); // index.html
-
     // so hyperlinks in index.html can be relative to public/*
     this._app.use(express.static(this._path_public));
     for (const p of ["ls", "ftp", "public"]) {
@@ -81,8 +79,8 @@ class App {
   }
 
   _route() {
-    this._app.get("/", (__, res) => {
-      res.json({ message: "S'up, dude" });
+    this._app.get("/", function (__, res) {
+      res.sendFile(path.join(Const.PATH_SRC, "/index.html"));
     });
 
     this._app.get("/cv", (__, res) => {
