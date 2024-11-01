@@ -7,6 +7,8 @@ const process = require("process");
 const http = require("node:http");
 const https = require("node:https");
 
+const serve_index = require("serve-index");
+
 class Const {
   static HOME = process.env.HOME;
   static PATH_ROOT = __dirname;
@@ -65,6 +67,14 @@ class App {
 
     this._app.use(express.static(this._path_public));
     this._app.use(express.static(Const.PATH_ROOT));
+
+    for (const p of ["ls", "ftp", "public"]) {
+      this._app.use(
+        `/${p}`,
+        express.static(this._path_public),
+        serve_index(this._path_public, { icons: true }),
+      );
+    }
   }
 
   _route() {
