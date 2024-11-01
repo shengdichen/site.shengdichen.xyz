@@ -66,7 +66,7 @@ class App {
       this._app.use(
         `/${p}`,
         express.static(this._path_public),
-        serve_index(this._path_public, { icons: true }),
+        serve_index(this._path_public, { icons: true, view: "details" }),
       );
     }
 
