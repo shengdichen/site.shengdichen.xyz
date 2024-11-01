@@ -30,7 +30,7 @@ class App {
     this._port_http = 3030;
     this._port_https = 3031;
 
-    this._path_attachment = path.join(Const.PATH_BIN, "attachment");
+    this._path_private = path.join(Const.PATH_BIN, "private");
     this._path_public = path.join(Const.PATH_BIN, "public");
 
     const domain = `shengdichen.xyz`;
@@ -60,20 +60,22 @@ class App {
       next(); // hand-off to next callback
     });
 
-    const [path_server, path_local] = ["/download", "./attachment"];
-    this._app.use(
-      path_server,
-      express.static(path_local, { dotfiles: "allow" }),
-    );
+    this._app.use(express.static(Const.PATH_SRC)); // index.html
 
+    // so hyperlinks in index.html can be relative to public/*
     this._app.use(express.static(this._path_public));
-    this._app.use(express.static(Const.PATH_SRC));
-
     for (const p of ["ls", "ftp", "public"]) {
       this._app.use(
         `/${p}`,
         express.static(this._path_public),
         serve_index(this._path_public, { icons: true }),
+      );
+    }
+
+    for (const p of ["priv", "private"]) {
+      this._app.use(
+        `/${p}`,
+        express.static(this._path_private, { dotfiles: "allow" }),
       );
     }
   }
@@ -84,11 +86,11 @@ class App {
     });
 
     this._app.get("/cv", (__, res) => {
-      res.download("./attachment/cv.pdf");
+      res.download(path.join(this._path_public, "cv.pdf"));
     });
 
     this._app.get("/song", (__, res) => {
-      res.sendFile(path.join(this._path_attachment, "f.flac"));
+      res.sendFile(path.join(this._path_private, "f.flac"));
     });
 
     this._app.get("/maomao", (__, res) => {
