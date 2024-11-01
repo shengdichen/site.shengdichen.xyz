@@ -11,7 +11,8 @@ const serve_index = require("serve-index");
 
 class Const {
   static HOME = process.env.HOME;
-  static PATH_ROOT = __dirname;
+  static PATH_SRC = __dirname;
+  static PATH_BIN = path.join(Const.PATH_SRC, "../bin");
 
   static PATH_CERT = `${this.HOME}/.cert/`;
 
@@ -29,8 +30,8 @@ class App {
     this._port_http = 3030;
     this._port_https = 3031;
 
-    this._path_attachment = path.join(Const.PATH_ROOT, "attachment");
-    this._path_public = path.join(Const.PATH_ROOT, "public");
+    this._path_attachment = path.join(Const.PATH_BIN, "attachment");
+    this._path_public = path.join(Const.PATH_BIN, "public");
 
     const domain = `shengdichen.xyz`;
     this._path_cert = `${Const.PATH_CERT}/${domain}`;
@@ -66,7 +67,7 @@ class App {
     );
 
     this._app.use(express.static(this._path_public));
-    this._app.use(express.static(Const.PATH_ROOT));
+    this._app.use(express.static(Const.PATH_SRC));
 
     for (const p of ["ls", "ftp", "public"]) {
       this._app.use(
