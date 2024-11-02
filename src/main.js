@@ -27,8 +27,8 @@ class App {
   constructor() {
     this._app = express();
 
-    this._port_http = 88;
-    this._port_https = 443;
+    this._port_http = 8080;
+    this._port_https = 8443;
 
     this._path_private = path.join(Const.PATH_BIN, "private");
     this._path_public = path.join(Const.PATH_BIN, "public");
