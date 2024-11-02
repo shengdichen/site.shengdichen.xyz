@@ -15,7 +15,13 @@ __nginx() {
     local _base="/etc/nginx/conf.d"
     sudo mkdir -p "${_base}"
 
-    cat <<STOP | sudo tee "${_base}/site.conf" >/dev/null
+    local _https_to_https=""
+    if [ "${1}" = "--https-to-https" ]; then
+        _https_to_https="yes"
+    fi
+
+    {
+        cat <<STOP
 server {
     listen 80;
     server_name 127.0.0.1;
@@ -26,7 +32,9 @@ server {
         proxy_pass http://127.0.0.1:8080;
     }
 }
+STOP
 
+        cat <<STOP
 server {
     listen 443 ssl;
     server_name 127.0.0.1;
@@ -42,10 +50,18 @@ server {
     location / {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
-        proxy_pass https://127.0.0.1:8443;
+STOP
+        if [ "${_https_to_https}" ]; then
+            printf "        proxy_pass https://127.0.0.1:8443;"
+        else
+            printf "        proxy_pass http://127.0.0.1:8080;"
+        fi
+        printf "\n"
+        cat <<STOP
     }
 }
 STOP
+    } | sudo tee "${_base}/site.conf" >/dev/null
 
     sudo systemctl restart nginx
 }
@@ -57,5 +73,5 @@ __run() {
 }
 
 __setup
-__nginx
+__nginx "${@}"
 __run

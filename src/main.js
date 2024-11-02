@@ -24,17 +24,16 @@ class Const {
 }
 
 class App {
-  constructor() {
+  constructor(https_to_https = true) {
     this._app = express();
 
+    this._domain = `shengdichen.xyz`;
+    this._with_reverse_proxy = https_to_https;
     this._port_http = 8080;
     this._port_https = 8443;
 
     this._path_private = path.join(Const.PATH_BIN, "private");
     this._path_public = path.join(Const.PATH_BIN, "public");
-
-    const domain = `shengdichen.xyz`;
-    this._path_cert = `${Const.PATH_CERT}/${domain}`;
   }
 
   launch() {
@@ -43,11 +42,14 @@ class App {
 
     http.createServer(this._app).listen(this._port_http);
 
-    const options = {
-      key: fs.readFileSync(`${this._path_cert}/privkey.pem`),
-      cert: fs.readFileSync(`${this._path_cert}/fullchain.pem`),
-    };
-    https.createServer(options, this._app).listen(this._port_https);
+    if (!this._with_reverse_proxy) {
+      const path_cert = `${Const.PATH_CERT}/${this._domain}`;
+      const options = {
+        key: fs.readFileSync(`${path_cert}/privkey.pem`),
+        cert: fs.readFileSync(`${path_cert}/fullchain.pem`),
+      };
+      https.createServer(options, this._app).listen(this._port_https);
+    }
   }
 
   _configure() {
