@@ -72,13 +72,35 @@ class App {
     });
 
     this._app.get("/cv", (__, res) => {
-      res.download(path.join(this._path_public, "cv.pdf"));
+      res.download(
+        path.join(this._path_public, "cv.pdf"),
+        "cv-CHEN_Shengdi.pdf",
+      );
+    });
+    this._app.get("/cv.pdf", (__, res) => {
+      res.sendFile(path.join(this._path_public, "cv.pdf"));
+    });
+
+    this._app.get("/msc", (__, res) => {
+      res.download(
+        path.join(this._path_public, "Dox/msc.pdf"),
+        "msc-CHEN_Shengdi.pdf",
+      );
+    });
+    this._app.get("/msc.pdf", (__, res) => {
+      res.sendFile(path.join(this._path_public, "Dox/msc.pdf"));
     });
 
     this._app.get("/song", (__, res) => {
       res.sendFile(path.join(this._path_private, "f.flac"));
     });
 
+    this._app.get("/syngy", (__, res) => {
+      res.redirect("https://home.shengdichen.xyz:54967");
+    });
+    this._app.get("/plex", (__, res) => {
+      res.redirect("https://home.shengdichen.xyz:31573");
+    });
     this._app.get("/maomao", (__, res) => {
       res.redirect(
         "https://duckduckgo.com/?t=ffab&q=%E8%B2%93&iax=images&ia=images",
