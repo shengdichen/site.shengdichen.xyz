@@ -10,13 +10,12 @@ const https = require("node:https");
 const serve_index = require("serve-index");
 
 class App {
-  constructor(https_to_https = true) {
+  constructor(use_reverse_proxy = true, reverse_proxy_https_to_https = false) {
     this._app = express();
 
     this._domain = `shengdichen.xyz`;
-    this._with_reverse_proxy = https_to_https;
-    this._port_http = 8080;
-    this._port_https = 8443;
+    this._use_reverse_proxy = use_reverse_proxy;
+    this._https_to_https = reverse_proxy_https_to_https;
 
     this._path_private = path.join(DEFINITION.PATH_BIN, "private");
     this._path_public = path.join(DEFINITION.PATH_BIN, "public");
@@ -26,16 +25,19 @@ class App {
     this._configure();
     this._route();
 
-    http.createServer(this._app).listen(this._port_http);
+    http.createServer(this._app).listen(this._use_reverse_proxy ? 8080 : 80);
 
-    if (!this._with_reverse_proxy) {
-      const path_cert = `${DEFINITION.PATH_CERT}/${this._domain}`;
-      const options = {
-        key: fs.readFileSync(`${path_cert}/privkey.pem`),
-        cert: fs.readFileSync(`${path_cert}/fullchain.pem`),
-      };
-      https.createServer(options, this._app).listen(this._port_https);
+    if (this._use_reverse_proxy && !this._https_to_https) {
+      return;
     }
+    const path_cert = `${DEFINITION.PATH_CERT}/${this._domain}`;
+    const options = {
+      key: fs.readFileSync(`${path_cert}/privkey.pem`),
+      cert: fs.readFileSync(`${path_cert}/fullchain.pem`),
+    };
+    https
+      .createServer(options, this._app)
+      .listen(this._use_reverse_proxy ? 8443 : 443);
   }
 
   _configure() {
