@@ -1,27 +1,13 @@
+const DEFINITION = require("./definition.js");
 const path = require("node:path");
 const fs = require("node:fs");
 
 const express = require("express");
-const process = require("process");
 
 const http = require("node:http");
 const https = require("node:https");
 
 const serve_index = require("serve-index");
-
-class Const {
-  static HOME = process.env.HOME;
-  static PATH_SRC = __dirname;
-  static PATH_BIN = path.join(Const.PATH_SRC, "../bin");
-
-  static PATH_CERT = `${this.HOME}/.cert/`;
-
-  static _XYZ = path.join(this.HOME, "/xyz");
-  static PATH_Dox = path.join(this._XYZ, "/Dox");
-  static PATH_MDA = path.join(this._XYZ, "/MDA");
-  static PATH_TV = path.join(this.PATH_MDA, "/Vid/TV");
-  static PATH_FM = path.join(this.PATH_MDA, "/Vid/FM");
-}
 
 class App {
   constructor(https_to_https = true) {
@@ -32,8 +18,8 @@ class App {
     this._port_http = 8080;
     this._port_https = 8443;
 
-    this._path_private = path.join(Const.PATH_BIN, "private");
-    this._path_public = path.join(Const.PATH_BIN, "public");
+    this._path_private = path.join(DEFINITION.PATH_BIN, "private");
+    this._path_public = path.join(DEFINITION.PATH_BIN, "public");
   }
 
   launch() {
@@ -43,7 +29,7 @@ class App {
     http.createServer(this._app).listen(this._port_http);
 
     if (!this._with_reverse_proxy) {
-      const path_cert = `${Const.PATH_CERT}/${this._domain}`;
+      const path_cert = `${DEFINITION.PATH_CERT}/${this._domain}`;
       const options = {
         key: fs.readFileSync(`${path_cert}/privkey.pem`),
         cert: fs.readFileSync(`${path_cert}/fullchain.pem`),
@@ -82,7 +68,7 @@ class App {
 
   _route() {
     this._app.get("/", function (__, res) {
-      res.sendFile(path.join(Const.PATH_SRC, "/index.html"));
+      res.sendFile(path.join(DEFINITION.PATH_SRC, "/index.html"));
     });
 
     this._app.get("/cv", (__, res) => {
