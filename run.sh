@@ -1,17 +1,33 @@
 #!/usr/bin/env dash
 
-__setup() {
+__setup_noproxy() {
     # REF:
     #   https://stackoverflow.com/questions/50112186/error-listen-eacces-0-0-0-0443
 
-    local _node="/usr/bin/node"
-    if [ -n "$(getcap "${_node}")" ]; then
-        return
+    local _mode="set"
+    if [ "${1}" = "unset" ]; then
+        _mode="unset"
+        shift
     fi
-    sudo setcap "cap_net_bind_service=+ep" "${_node}"
+
+    local _node="/usr/bin/node"
+    case "${_mode}" in
+        "set")
+            if [ -n "$(getcap "${_node}")" ]; then
+                return
+            fi
+            sudo setcap "cap_net_bind_service=+ep" "${_node}"
+            ;;
+        "unset")
+            if [ -z "$(getcap "${_node}")" ]; then
+                return
+            fi
+            sudo setcap -r "${_node}"
+            ;;
+    esac
 }
 
-__nginx() {
+__setup_proxy_nginx() {
     local _base="/etc/nginx/conf.d"
     sudo mkdir -p "${_base}"
 
@@ -72,6 +88,6 @@ __run() {
     )
 }
 
-__setup
-__nginx "${@}"
+__setup_noproxy unset
+__setup_proxy_nginx "${@}"
 __run
